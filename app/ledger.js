@@ -828,6 +828,9 @@ var enable = (paymentsEnabled) => {
 
     // change undefined include publishers to include publishers
     appActions.enableUndefinedPublishers(synopsis.publishers)
+
+    fs.unlink(pathName(publisherPath), (err) => { if ((err) && (err.code !== 'ENOENT')) console.log(err) })
+    fs.unlink(pathName(scoresPath), (err) => { if ((err) && (err.code !== 'ENOENT')) console.log(err) })
   })
 }
 
