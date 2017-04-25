@@ -828,30 +828,6 @@ var enable = (paymentsEnabled) => {
 
     // change undefined include publishers to include publishers
     appActions.enableUndefinedPublishers(synopsis.publishers)
-
-    fs.readFile(pathName(publisherPath), (err, data) => {
-      if (err) {
-        if (err.code !== 'ENOENT') console.log('publisherPath read error: ' + err.toString())
-        return
-      }
-
-      if (publisherInfo._internal.verboseP) console.log('\nfound ' + pathName(publisherPath))
-      try {
-        data = JSON.parse(data)
-        underscore.keys(data).sort().forEach((publisher) => {
-          var entries = data[publisher]
-
-          publishers[publisher] = {}
-          entries.forEach((entry) => {
-            locations[entry.location] = entry
-            publishers[publisher][entry.location] = { timestamp: entry.when, tabIds: [] }
-            updateLocation(entry.location, publisher)
-          })
-        })
-      } catch (ex) {
-        console.log('publishersPath parse error: ' + ex.toString())
-      }
-    })
   })
 }
 
@@ -996,22 +972,7 @@ const fetchFavIcon = (entry, url, redirects) => {
 }
 
 var updatePublisherInfo = (changedPublisher) => {
-  var data = {}
-  var then = underscore.now() - msecs.week
-
-  underscore.keys(publishers).sort().forEach((publisher) => {
-    var entries = []
-
-    underscore.keys(publishers[publisher]).forEach((location) => {
-      var when = publishers[publisher][location].timestamp
-
-      if (when > then) entries.push({ location: location, when: when })
-    })
-
-    if (entries.length > 0) data[publisher] = entries
-  })
-  atomicWriter(pathName(publisherPath), data, () => {})
-  atomicWriter(pathName(scoresPath), synopsis.allN(), () => {})
+  var data
 
   atomicWriter(pathName(synopsisPath), synopsis, () => {})
   if (!publisherInfo._internal.enabled) return
